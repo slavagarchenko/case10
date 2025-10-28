@@ -148,11 +148,11 @@ def compare_budget_vs_actual(budget: dict, transactions: list, target_month: str
             status = OVER_BUDGET
 
         comparison[category] = {
-            'planned': planned_amount,
-            'actual': round(actual_amount, 2),
-            'status': status,
-            'percent_over': round(((actual_amount - planned_amount) / planned_amount * 100),
-                                  1) if planned_amount > 0 else 0
+            PLANNED: planned_amount,
+            ACTUAL: round(actual_amount, 2),
+            STATUS: status,
+            PERCENT_OVER: 0 if planned_amount <= 0 else round(
+                ((actual_amount - planned_amount) / planned_amount * 100), 1)
         }
 
     return comparison
