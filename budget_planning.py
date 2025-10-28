@@ -1,5 +1,4 @@
 from ru_local import *
-from collections import defaultdict
 from datetime import datetime
 
 
@@ -15,14 +14,13 @@ def analyze_historical_spending(transactions: list) -> dict:
     months = set()
 
     for transaction in transactions:
-        # Преобразуем сумму из строки в число
+    
         amount = float(transaction['Сумма'])
 
-        if amount < 0:  # Только расходы
+        if amount < 0:
             category = transaction['Категория']
             amount_abs = abs(amount)
 
-            # Извлекаем месяц из даты
             date_obj = datetime.strptime(transaction['Дата'], DATE_FORMAT)
             month = date_obj.strftime(MONTH_FORMAT)
             months.add(month)
@@ -71,13 +69,11 @@ def create_budget_template(analysis: dict, transactions: list) -> dict:
     for category, data in analysis.items():
         avg_spending = data['avg_monthly']
 
-        # Устанавливаем лимиты на основе исторических расходов
         if avg_spending > 3000:
-            budget[category] = round(avg_spending * 0.85)  # Сокращаем на 15% для высоких расходов
+            budget[category] = round(avg_spending * 0.85)
         else:
-            budget[category] = round(avg_spending * 0.95)  # Сокращаем на 5% для умеренных расходов
+            budget[category] = round(avg_spending * 0.95)
 
-    # Добавляем накопления (10% от дохода)
     budget[SAVINGS] = round(monthly_income * 0.1)
     return budget
 
@@ -95,8 +91,7 @@ def calculate_monthly_income(transactions: list) -> float:
     for transaction in transactions:
         amount = float(transaction['Сумма'])
 
-        if amount > 0:  # Только доходы
-            # Извлекаем месяц из даты
+        if amount > 0:  
             date_obj = datetime.strptime(transaction['Дата'], DATE_FORMAT)
             month = date_obj.strftime(MONTH_FORMAT)
 
@@ -125,8 +120,7 @@ def compare_budget_vs_actual(budget: dict, transactions: list, target_month: str
     for transaction in transactions:
         amount = float(transaction['Сумма'])
 
-        if amount < 0:  # Только расходы
-            # Проверяем месяц, если указан целевой месяц
+        if amount < 0: 
             if target_month:
                 date_obj = datetime.strptime(transaction['Дата'], DATE_FORMAT)
                 transaction_month = date_obj.strftime(MONTH_FORMAT)
@@ -142,16 +136,16 @@ def compare_budget_vs_actual(budget: dict, transactions: list, target_month: str
 
     comparison = {}
     for category, planned_amount in budget.items():
-        # Пропускаем категорию накоплений при сравнении расходов
+
         if category == SAVINGS:
             continue
 
         actual_amount = actual_spending.get(category, 0)
 
         if actual_amount <= planned_amount:
-            status = 'within_budget'
+            status = IN_BUDGET
         else:
-            status = 'exceeded'
+            status = OVER_BUDGET
 
         comparison[category] = {
             'planned': planned_amount,
